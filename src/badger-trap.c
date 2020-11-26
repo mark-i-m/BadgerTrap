@@ -1,17 +1,19 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <libgen.h>
+
+#define BADGERTRAP_SYSCALL 436
 
 int main (int argc, char* argv[])
 {
 	pid_t pid;
 	int status, ret=0;
         char *process_names[1];
-	
+
 	if(argc < 2)
 	{
 		printf("Usage: ./badger-trap <name | pid | command | help> {arguments}\n");
@@ -32,7 +34,7 @@ int main (int argc, char* argv[])
 			return 0;
 		}
 	        process_names[0] = basename(argv[2]);
-	        ret = syscall(314,process_names,1,1);
+	        ret = syscall(BADGERTRAP_SYSCALL,process_names,1,1);
 	        switch ((pid = fork()))
 	        {
 	        case -1:
@@ -47,15 +49,15 @@ int main (int argc, char* argv[])
 	                wait(&status);
 	                break;
 	        }
-	        ret = syscall(314,NULL,0,1);
+	        ret = syscall(BADGERTRAP_SYSCALL,NULL,0,1);
 	}
 	else if (strcmp(argv[1],"name")==0)
 	{
-		ret = syscall(314,&argv[2],argc-2,1);
+		ret = syscall(BADGERTRAP_SYSCALL,&argv[2],argc-2,1);
 	}
 	else if (strcmp(argv[1],"pid")==0)
 	{
-		ret = syscall(314,&argv[2],argc-2,-1);
+		ret = syscall(BADGERTRAP_SYSCALL,&argv[2],argc-2,-1);
 	}
 	else if((strcmp(argv[1],"help")==0))
 	{
