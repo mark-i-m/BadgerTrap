@@ -8,6 +8,16 @@
 
 #define BADGERTRAP_SYSCALL 436
 
+int do_badger_trap(char **process_names, int numprocs, int mode)
+{
+	int i;
+	for (i = 0; i < numprocs; ++i) {
+		printf("%s %p mode=%d\n", process_names[i], process_names[i], mode);
+	}
+
+	return syscall(BADGERTRAP_SYSCALL, process_names, numprocs, mode);
+}
+
 int main (int argc, char* argv[])
 {
 	pid_t pid;
@@ -34,7 +44,7 @@ int main (int argc, char* argv[])
 			return 0;
 		}
 	        process_names[0] = basename(argv[2]);
-	        ret = syscall(BADGERTRAP_SYSCALL,process_names,1,1);
+		ret = do_badger_trap(process_names, 1, 1);
 	        switch ((pid = fork()))
 	        {
 	        case -1:
@@ -49,15 +59,15 @@ int main (int argc, char* argv[])
 	                wait(&status);
 	                break;
 	        }
-	        ret = syscall(BADGERTRAP_SYSCALL,NULL,0,1);
+		ret = do_badger_trap(NULL, 0, 1);
 	}
 	else if (strcmp(argv[1],"name")==0)
 	{
-		ret = syscall(BADGERTRAP_SYSCALL,&argv[2],argc-2,1);
+		ret = do_badger_trap(&argv[2], argc-2, 1);
 	}
 	else if (strcmp(argv[1],"pid")==0)
 	{
-		ret = syscall(BADGERTRAP_SYSCALL,&argv[2],argc-2,-1);
+		ret = do_badger_trap(&argv[2], argc-2, -1);
 	}
 	else if((strcmp(argv[1],"help")==0))
 	{
